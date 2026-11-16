@@ -36,16 +36,15 @@ def load_raw(path):
 def icu_type(df):
     """Derive a single categorical ICU-admission-type column from the three
     binary flags (CCU/CSRU/SICU); all-zero means Medical ICU (MICU), the
-    challenge's fourth category."""
-    def row_type(r):
-        if r["CCU"] == 1:
-            return "CCU"
-        if r["CSRU"] == 1:
-            return "CSRU"
-        if r["SICU"] == 1:
-            return "SICU"
-        return "MICU"
-    return df.apply(row_type, axis=1)
+    challenge's fourth category. The flags are mutually exclusive in the
+    data (checked: no row has more than one set), which is asserted here
+    rather than silently resolved by priority order."""
+    flags = df[ICU_TYPE_COLUMNS].fillna(0).astype(int)
+    assert (flags.sum(axis=1) <= 1).all(), "ICU type flags are not mutually exclusive"
+    out = pd.Series("MICU", index=df.index, dtype=object)
+    for col in ICU_TYPE_COLUMNS:
+        out[flags[col] == 1] = col
+    return out
 
 
 def get_features_and_label(df):

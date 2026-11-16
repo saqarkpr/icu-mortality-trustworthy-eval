@@ -57,21 +57,35 @@ cite:
 
 ## Excluded columns (checked empirically, not assumed)
 
-`scripts/check_leakage.py` fits a single-feature classifier on each
-candidate column alone and reports its AUROC, rather than trusting the
-field description:
+`scripts/check_leakage.py` tests the two outcome-adjacent columns
+directly rather than trusting the field description (full numbers in
+`results/leakage_check.json` and the leakage section of
+`results/report.md`):
 
-- **`Survival`** (days from admission to death; **-1** for survivors, by
-  the challenge's own definition): AUROC from this one column alone =
-  **0.259** (5-fold CV) -- far from the 0.5 no-signal baseline in either
-  direction, confirming it is close to a restatement of the label for
-  non-survivors. **Excluded.**
-- **`Length_of_stay`**: AUROC from this column alone = **0.495** -- no
-  meaningful univariate signal in this sample. Still **excluded**, on
-  conservative/conceptual grounds rather than the empirical test: for
-  patients who died, length of stay is mechanically entangled with time
-  of death, which is a form of leakage that a weak marginal correlation in
-  one sample doesn't rule out. This is a judgment call, stated as one.
+- **`Survival`** (days from ICU admission to death for patients who died
+  -- in hospital *or* after discharge -- and **-1** for patients alive at
+  follow-up, by the challenge's own definition). Together with
+  `Length_of_stay` it determines the label exactly: the rule
+  `0 < Survival <= Length_of_stay` reproduces `In-hospital_death` on
+  **100.0%** of Set A rows. A depth-3 decision tree on `Survival` alone
+  reaches AUROC **0.988** (5-fold CV). **Excluded.**
+- **`Length_of_stay`**: a depth-3 tree on this column alone gives AUROC
+  **0.572** -- weak but real univariate signal, and more importantly it
+  is one half of the deterministic rule above (for a patient who died,
+  stay length is mechanically bounded by time of death). **Excluded.**
+
+**Correction to an earlier version of this document.** The first version
+of the leakage check used a *linear* single-feature logistic regression
+and reported AUROC 0.259 for `Survival` and 0.495 for `Length_of_stay`,
+describing the former as "confirming" leakage and the latter as "no
+meaningful signal". Both readings were wrong, for the same reason: the
+relation between `Survival` and the label is non-monotone (-1 for
+survivors, small positive values for in-hospital deaths, large positive
+values for patients who died later), which a linear logit cannot
+represent, so that test badly understates the leakage. The conclusion
+(exclude both) was right; the evidence quoted for it was not, and the
+script now runs the deterministic-rule and tree checks and keeps the
+linear numbers only to document why they misled.
 
 `recordid` (an identifier) is dropped as a feature for the obvious reason.
 `SAPS-I` and `SOFA` (clinical severity scores computed from the same early

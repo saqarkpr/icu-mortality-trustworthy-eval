@@ -5,8 +5,11 @@ never evaluated on rows it was trained on.
 """
 import argparse
 import json
+import os
 import numpy as np
 import pandas as pd
+import platform
+import sklearn
 from sklearn.model_selection import StratifiedKFold
 
 from src.data_utils import load_raw, get_features_and_label
@@ -51,6 +54,10 @@ def main():
     out = {
         "seed": args.seed,
         "n_splits": args.n_splits,
+        # GBT predictions are deterministic for a given scikit-learn version
+        # but shift across versions; record what produced this file.
+        "environment": {"python": platform.python_version(), "scikit_learn": sklearn.__version__},
+        "n_features": int(X.shape[1]),
         "recordid": df["recordid"].tolist(),
         "label": y.tolist(),
         "icu_type": groups.tolist(),
@@ -58,7 +65,6 @@ def main():
         "oof_logreg": oof["logreg"].tolist(),
         "oof_gbt": oof["gbt"].tolist(),
     }
-    import os
     os.makedirs("results", exist_ok=True)
     with open(args.out, "w") as f:
         json.dump(out, f)

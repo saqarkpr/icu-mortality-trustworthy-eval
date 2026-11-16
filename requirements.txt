@@ -1,5 +1,10 @@
-pandas
-numpy
-scikit-learn
-scipy
-matplotlib
+# Pinned to the versions the committed results/ were generated with.
+# HistGradientBoostingClassifier output changes slightly across
+# scikit-learn versions (see README, "Reproducibility"), so the pins are
+# part of the result, not just convenience.
+pandas==3.0.5
+numpy==2.5.3
+scikit-learn==1.9.1
+scipy==1.18.1
+matplotlib==3.11.2
+pytest>=8

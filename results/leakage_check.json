@@ -1,0 +1,26 @@
+{
+  "rule_0<Survival<=LOS": {
+    "agreement_with_label": 1.0,
+    "auroc": 1.0
+  },
+  "tree_depth3_Survival": {
+    "auroc_mean": 0.9883996507966977,
+    "auroc_std": 0.0016436514961165646
+  },
+  "tree_depth3_Length_of_stay": {
+    "auroc_mean": 0.5720004721645411,
+    "auroc_std": 0.02400853146155331
+  },
+  "tree_depth3_Survival+Length_of_stay": {
+    "auroc_mean": 0.9905432197228752,
+    "auroc_std": 0.0009489751926926307
+  },
+  "linear_logreg_Survival": {
+    "auroc_mean": 0.258950706817811,
+    "auroc_std": 0.01643564385983383
+  },
+  "linear_logreg_Length_of_stay": {
+    "auroc_mean": 0.49526500581135524,
+    "auroc_std": 0.008997356657514239
+  }
+}
